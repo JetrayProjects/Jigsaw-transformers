@@ -1,17 +1,16 @@
-name: taming
+name: taming1
 channels:
   - pytorch
   - defaults
 dependencies:
-  - python=3.10  # Compatible with M1
+  - python=3.8  # Compatible with M1
   - numpy
   - pytorch
   - torchvision
-  - cudatoolkit
   - pip
   - pip:
     - albumentations==0.4.3
-    - opencv-python==4.1.2.30
+    - opencv-python>=4.1.2.30
     - pudb==2019.2
     - imageio==2.9.0
     - imageio-ffmpeg==0.4.2

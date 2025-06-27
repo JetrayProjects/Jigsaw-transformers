@@ -14,10 +14,31 @@ import logging
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from transformers import top_k_top_p_filtering
+#from transformers import top_k_top_p_filtering
 
 logger = logging.getLogger(__name__)
 
+
+def top_k_top_p_filtering(logits, top_k=0, top_p=1.0, filter_value=-float('Inf')):
+    """ Filter a distribution of logits using top-k and/or nucleus (top-p) filtering """
+    top_k = min(top_k, logits.size(-1))  # Safety check
+    if top_k > 0:
+        values, _ = torch.topk(logits, top_k)
+        min_threshold = values[..., -1, None]
+        logits = torch.where(logits < min_threshold, torch.full_like(logits, filter_value), logits)
+
+    if top_p < 1.0:
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+
+        sorted_indices_to_remove = cumulative_probs > top_p
+        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+        sorted_indices_to_remove[..., 0] = 0
+
+        indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
+        logits = logits.masked_fill(indices_to_remove, filter_value)
+
+    return logits
 
 class GPTConfig:
     """ base GPT config, params common to all GPT versions """
@@ -269,7 +290,7 @@ class CodeGPT(nn.Module):
         position_embeddings = self.pos_emb[:, :t, :] # each position maps to a (learnable) vector
         x = self.drop(token_embeddings + position_embeddings)
         x = self.blocks(x)
-        x = self.taming_cinln_f(x)
+        x = self.ln_f(x)
         logits = self.head(x)
 
         # if we are given some desired targets also calculate the loss
