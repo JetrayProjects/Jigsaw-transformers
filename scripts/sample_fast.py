@@ -6,6 +6,7 @@ from omegaconf import OmegaConf
 from PIL import Image
 from tqdm import tqdm, trange
 from einops import repeat
+
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from main import instantiate_from_config
@@ -195,7 +196,7 @@ def load_model_from_config(config, sd, gpu=True, eval_mode=True):
 def load_model(config, ckpt, gpu, eval_mode):
     # load the specified checkpoint
     if ckpt:
-        pl_sd = torch.load(ckpt, map_location="cpu")
+        pl_sd = torch.load(ckpt, map_location="cpu", weights_only=False)
         global_step = pl_sd["global_step"]
         print(f"loaded model from global step {global_step}.")
     else:
