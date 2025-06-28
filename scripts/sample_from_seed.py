@@ -1,7 +1,7 @@
 import os
 import torch
 from PIL import Image
-from taming.models.vqgan import VQModel
+#from taming.models.vqgan import VQModel
 from scripts.main import instantiate_from_config
 from taming.modules.transformer.mingpt import sample_with_past
 from torchvision import transforms
