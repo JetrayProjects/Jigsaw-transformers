@@ -21,7 +21,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def load_model(config_path, ckpt_path):
     config = OmegaConf.load(config_path)
     model = instantiate_from_config(config.model)
-    state_dict = torch.load(ckpt_path, map_location="cpu")
+    state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     model.load_state_dict(state_dict["state_dict"], strict=False)
     model.eval()
     return model
