@@ -5,62 +5,62 @@ from PIL import Image
 from main import instantiate_from_config
 from taming.modules.transformer.mingpt import sample_with_past
 from torchvision import transforms
+from omegaconf import OmegaConf
 import numpy as np
 
 # --------- CONFIG ---------
-VQGAN_CONFIG = "configs/imagenet_vqgan.yaml"
-VQGAN_CKPT = "checkpoints/imagenet_vqgan.ckpt"
-TRANSFORMER_CONFIG = "/root/logs/2021-04-03T19-39-50_cin_transformer/config.yaml"
-TRANSFORMER_CKPT = "/root/logs/2021-04-03T19-39-50_cin_transformer/model.ckpt"
-IMAGE_PATH = "sample.png"
-SEED_LENGTH = 16  # You can modify this value easily
+
+CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/config.yaml"
+CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/model.ckpt"
+SEED_IMAGE_PATH = "sample.png"
+SEED_TOKEN_COUNT = 16  # You can modify this value easily
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # --------- HELPERS ---------
-def load_model(config_path, checkpoint_path):
-    config = instantiate_from_config(config_path)
-    model = config.model
-    model.load_state_dict(torch.load(checkpoint_path, map_location="cpu")["state_dict"], strict=False)
-    model.eval().to(DEVICE)
+def load_model(config_path, ckpt_path):
+    config = OmegaConf.load(config_path)
+    model = instantiate_from_config(config.model)
+    state_dict = torch.load(ckpt_path, map_location="cpu")
+    model.load_state_dict(state_dict["state_dict"], strict=False)
+    model.eval()
     return model
 
-def preprocess(image_path):
-    transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(256),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5], [0.5])
-    ])
-    image = Image.open(image_path).convert("RGB")
-    return transform(image).unsqueeze(0).to(DEVICE)
+def get_seed_tokens(vqgan, image_path, seed_length):
+    image = Image.open(image_path).convert("RGB").resize((256, 256))
+    image_tensor = torch.tensor(np.array(image)).permute(2, 0, 1).float() / 127.5 - 1
+    image_tensor = image_tensor.unsqueeze(0)  # Add batch dim
+    with torch.no_grad():
+        z, _, [indices] = vqgan.encode(image_tensor)
+    return indices[0, :seed_length]  # Return first `seed_length` tokens
 
-def decode_to_img(model, z_indices):
-    z_indices = z_indices.view(1, 16, 16)  # 256 tokens = 16x16 grid
-    x = model.decode_code(z_indices)
-    x = (x + 1.0) / 2.0
-    x = x.clamp(0.0, 1.0)
-    x = x.cpu().squeeze().permute(1, 2, 0).numpy()
-    return Image.fromarray((x * 255).astype(np.uint8))
+# Helper to decode tokens to image
+def decode_tokens(vqgan, tokens):
+    tokens = tokens.unsqueeze(0)
+    with torch.no_grad():
+        decoded = vqgan.decode(tokens)
+    decoded = decoded.squeeze(0).permute(1, 2, 0).cpu().numpy()
+    decoded = ((decoded + 1.0) / 2.0 * 255).clip(0, 255).astype(np.uint8)
+    return Image.fromarray(decoded)
 
-# --------- MAIN ---------
-if __name__ == "__main__":
+def main():
     print("Loading models...")
-    vqgan = load_model(VQGAN_CONFIG, VQGAN_CKPT)
-    transformer = load_model(TRANSFORMER_CONFIG, TRANSFORMER_CKPT)
+    model = load_model(CONFIG_PATH, CHECKPOINT_PATH)
+    vqgan = model.first_stage_model
+    transformer = model.transformer
 
-    print("Encoding image...")
-    img_tensor = preprocess(IMAGE_PATH)
-    z, _, [z_indices] = vqgan.encode(img_tensor)
-    z_indices = z_indices.view(-1)
+    print("Encoding seed image...")
+    seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
 
-    seed = z_indices[:SEED_LENGTH].unsqueeze(0)  # shape: (1, SEED_LENGTH)
+    print("Generating sequence...")
+    sampled = sample_with_past(transformer, seed_tokens, steps=256 - SEED_TOKEN_COUNT, temperature=1.0, sample=True, top_k=100, top_p=0.95)
 
-    print(f"Sampling from seed of length {SEED_LENGTH}...")
-    sampled = sample_with_past(transformer, seed, steps=MAX_LENGTH - SEED_LENGTH, temperature=1.0, top_k=100, top_p=0.95)
-    out = torch.cat((seed, sampled), dim=1)
+    full_tokens = torch.cat([seed_tokens, sampled], dim=0)
 
-    print("Decoding output image...")
-    out_img = decode_to_img(vqgan, out[0])
-    out_img.save("output.png")
-    print("Saved to output.png")
+    print("Decoding generated image...")
+    output_image = decode_tokens(vqgan, full_tokens)
+    output_image.save("output_seeded.png")
+    print("Saved output to output_seeded.png")
+
+if __name__ == "__main__":
+    main()
