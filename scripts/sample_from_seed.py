@@ -10,8 +10,8 @@ import numpy as np
 
 # --------- CONFIG ---------
 
-CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/config.yaml"
-CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/model.ckpt"
+CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/2021-04-03T19-39-50-project.yaml"
+CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
 SEED_TOKEN_COUNT = 16  # You can modify this value easily
 MAX_LENGTH = 256
