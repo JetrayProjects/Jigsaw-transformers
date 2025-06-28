@@ -33,7 +33,7 @@ def get_seed_tokens(vqgan, image_path, seed_length):
     with torch.no_grad():
         _, _, quant_output = vqgan.encode(image_tensor)
         indices = quant_output[2]
-    return indices[0, :seed_length]  # Return first `seed_length` tokens
+    return indices[:seed_length]  # Return first `seed_length` tokens
 
 # Helper to decode tokens to image
 def decode_tokens(vqgan, tokens):
