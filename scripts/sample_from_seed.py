@@ -25,6 +25,33 @@ def load_model(config_path, ckpt_path):
     model.load_state_dict(state_dict["state_dict"], strict=False)
     model.eval()
     return model
+def get_seed_tokens1(vqgan, image_path, seed_length):
+    from pprint import pprint
+
+    image = Image.open(image_path).convert("RGB").resize((256, 256))
+    image_tensor = torch.tensor(np.array(image)).permute(2, 0, 1).float() / 127.5 - 1
+    image_tensor = image_tensor.unsqueeze(0)  # Add batch dim
+
+    with torch.no_grad():
+        print("Calling vqgan.encode...")
+        out = vqgan.encode(image_tensor)
+        print(f"encode() returned {len(out)} items")
+
+        z = out[0]
+        other = out[2]
+        print(f"z shape: {z.shape}")
+        print(f"third item type: {type(other)}")
+        if isinstance(other, tuple):
+            print(f"length of third item tuple: {len(other)}")
+            pprint([type(x) for x in other])
+            print(f"indices is None? {other[1] is None}")
+            if other[1] is None:
+                raise ValueError("vqgan.encode() returned None for indices!")
+
+            indices = other[1]
+            return indices[0, :seed_length]
+        else:
+            raise ValueError("Unexpected output format from vqgan.encode()")
 
 def get_seed_tokens(vqgan, image_path, seed_length):
     image = Image.open(image_path).convert("RGB").resize((256, 256))
@@ -49,6 +76,10 @@ def main():
     model = load_model(CONFIG_PATH, CHECKPOINT_PATH)
     vqgan = model.first_stage_model
     transformer = model.transformer
+
+    print("Checking VQGAN output")
+    seed_tokens1 = get_seed_tokens1(vqgan,SEED_IMAGE_PATH,SEED_TOKEN_COUNT)
+    print(seed_tokens1)
 
     print("Encoding seed image...")
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
