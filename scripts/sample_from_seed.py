@@ -54,9 +54,9 @@ def main():
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
 
     print("Generating sequence...")
-    sampled = sample_with_past(transformer, seed_tokens, steps=256 - SEED_TOKEN_COUNT, temperature=1.0, top_k=100, top_p=0.95)
+    sampled = sample_with_past(transformer, seed_tokens.unsqueeze(0), steps=256 - SEED_TOKEN_COUNT, temperature=1.0, top_k=100, top_p=0.95)
 
-    full_tokens = torch.cat([seed_tokens, sampled], dim=0)
+    full_tokens = torch.cat([seed_tokens, sampled.squeeze(0)], dim=0)
 
     print("Decoding generated image...")
     output_image = decode_tokens(vqgan, full_tokens)
