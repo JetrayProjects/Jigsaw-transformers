@@ -31,7 +31,7 @@ def get_seed_tokens(vqgan, image_path, seed_length):
     image_tensor = torch.tensor(np.array(image)).permute(2, 0, 1).float() / 127.5 - 1
     image_tensor = image_tensor.unsqueeze(0)  # Add batch dim
     with torch.no_grad():
-        z, _, [indices] = vqgan.encode(image_tensor)
+         _, [indices] = vqgan.encode(image_tensor)
     return indices[0, :seed_length]  # Return first `seed_length` tokens
 
 # Helper to decode tokens to image
