@@ -13,7 +13,7 @@ import numpy as np
 CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/configs/2021-04-03T19-39-50-project.yaml"
 CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
-SEED_TOKEN_COUNT = 60 # You can modify this value easily
+SEED_TOKEN_COUNT = 1 # You can modify this value easily
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
