@@ -67,7 +67,7 @@ def main():
     print(f"full_tokens shape: {full_tokens.shape}")
     print("Decoding generated image...")
     output_image = decode_tokens(vqgan, full_tokens)
-    output_image.save("output_seeded.png")
+    output_image.save("/root/logs/output_seeded.png")
     print("Saved output to output_seeded.png")
 
 if __name__ == "__main__":
