@@ -38,6 +38,7 @@ def get_seed_tokens(vqgan, image_path, seed_length):
 # Helper to decode tokens to image
 def decode_tokens(vqgan, tokens):
     tokens = tokens.unsqueeze(0)  # Shape: [1, 256]
+    print(f"tokens shape after reshape: {tokens.shape}")  # Debug
     with torch.no_grad():
         z = vqgan.quantize.get_codebook_entry(tokens, shape=(1, 16, 16))  # Shape: [1, 256, 16, 16]
         decoded = vqgan.decode(z)
@@ -57,7 +58,7 @@ def main():
     sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1.0, top_k=100, top_p=0.95)
 
     full_tokens = torch.cat([seed_tokens, sampled.squeeze(0)], dim=0)
-
+    print(f"full_tokens shape: {full_tokens.shape}")
     print("Decoding generated image...")
     output_image = decode_tokens(vqgan, full_tokens)
     output_image.save("output_seeded.png")
