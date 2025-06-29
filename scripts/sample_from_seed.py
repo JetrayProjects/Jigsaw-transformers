@@ -37,11 +37,9 @@ def get_seed_tokens(vqgan, image_path, seed_length):
 
 # Helper to decode tokens to image
 def decode_tokens(vqgan, tokens):
-    tokens = tokens.unsqueeze(0)  # Add batch dimension
-    tokens = tokens.view(1, -1)  # Shape [1, 256]
-    z = vqgan.quantize.get_codebook_entry(tokens, shape=(1, 256, 16, 16))  # [B, C, H, W]
-    #z = vqgan.quantize.get_codebook_entry(tokens, shape=(1, 16, 16))  # [B, C, H, W]
+    tokens = tokens.unsqueeze(0)  # Shape: [1, 256]
     with torch.no_grad():
+        z = vqgan.quantize.get_codebook_entry(tokens, shape=(1, 16, 16))  # Shape: [1, 256, 16, 16]
         decoded = vqgan.decode(z)
     decoded = decoded.squeeze(0).permute(1, 2, 0).cpu().numpy()
     decoded = ((decoded + 1.0) / 2.0 * 255).clip(0, 255).astype(np.uint8)
