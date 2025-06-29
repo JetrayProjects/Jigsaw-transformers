@@ -35,15 +35,19 @@ def get_seed_tokens(vqgan, image_path, seed_length):
         indices = quant_output[2]
     return indices[:seed_length]  # Return first `seed_length` tokens
 
-# Helper to decode tokens to image
 def decode_tokens(vqgan, tokens):
     print(f"tokens shape before reshape: {tokens.shape}")  # Debug
-    tokens = tokens.view(1, 16, 16)  # Turn 1D token list into 2D spatial grid
-    print(f"tokens shape after reshape: {tokens.shape}")  # Should be [1, 16, 16]
+    tokens = tokens.view(1, 16, 16)  # [B, H, W]
+    print(f"tokens shape after reshape: {tokens.shape}")
+
     with torch.no_grad():
-        z = vqgan.quantize.get_codebook_entry(tokens, shape=(1, 256, 16, 16))  # Final embedding shape
-        print(f"z shape after get_codebook_entry: {z.shape}")
+        z = vqgan.quantize.get_codebook_entry(tokens, shape=None)  # → [1, 16, 16, 256]
+        print(f"z shape before permute: {z.shape}")
+        z = z.permute(0, 3, 1, 2)  # → [1, 256, 16, 16]
+        print(f"z shape after permute: {z.shape}")
+
         decoded = vqgan.decode(z)
+
     decoded = decoded.squeeze(0).permute(1, 2, 0).cpu().numpy()
     decoded = ((decoded + 1.0) / 2.0 * 255).clip(0, 255).astype(np.uint8)
     return Image.fromarray(decoded)
