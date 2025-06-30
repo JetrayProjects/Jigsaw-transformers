@@ -13,7 +13,7 @@ import numpy as np
 CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/configs/2021-04-03T19-39-50-project.yaml"
 CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
-SEED_TOKEN_COUNT = 1 # You can modify this value easily
+SEED_TOKEN_COUNT = 128 # You can modify this value easily
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -41,12 +41,12 @@ def decode_tokens(vqgan, tokens):
     print(f"tokens shape after reshape: {tokens.shape}")
 
     with torch.no_grad():
-        z = vqgan.quantize.get_codebook_entry(tokens, shape=None)  # → [1, 16, 16, 256]
+        z = vqgan.quantize.get_codebook_entry(tokens, shape=None)  # → []
         print(f"z shape before permute: {z.shape}")
         z = z.permute(0, 3, 1, 2)  # → [1, 256, 16, 16]
         print(f"z shape after permute: {z.shape}")
 
-        decoded = vqgan.decode(z)
+        decoded = vqgan.decode(z) # -> [1,3,256,256]
 
     decoded = decoded.squeeze(0).permute(1, 2, 0).cpu().numpy()
     decoded = ((decoded + 1.0) / 2.0 * 255).clip(0, 255).astype(np.uint8)
