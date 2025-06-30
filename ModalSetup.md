@@ -1,7 +1,7 @@
 # Modal Setup on Local Computer
 
-## Create an account on Modal
-1. [https://modal.com/]
+1. Create an account on Modal
+   [https://modal.com/]
 
 2. In your terminal run
 
