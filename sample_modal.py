@@ -34,7 +34,7 @@ def run_sampling():
         [
             "python", "scripts/sample_fast.py",
             "-r", "/root/logs/2021-04-03T19-39-50_cin_transformer/",
-            "-n", "10", "-k", "100", "-t", "1.0", "-p", "0.92", "--batch_size", "10" ,"--classes", "15"
+            "-n", "1", "-k", "100", "-t", "1.0", "-p", "0.92", "--batch_size", "10" ,"--classes", "1,2,3"
         ],
         check=True,
         cwd="/root/Jigsaw-transformers"
