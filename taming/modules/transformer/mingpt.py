@@ -352,6 +352,7 @@ def sample_with_past(x, model, steps, temperature=1., sample_logits=True,
         if callback is not None:
             callback(n)
         logits, _, present = model.forward_with_past(x, past=past, past_length=(n+cond_len-1))
+        print(f"Step {n} - logits shape: {logits.shape}")
         if past is None:
             past = [present]
         else:
@@ -370,6 +371,38 @@ def sample_with_past(x, model, steps, temperature=1., sample_logits=True,
     del past
     sample = sample[:, cond_len:]  # cut conditioning off
     return sample
+
+@torch.no_grad()
+def sample_with_masking(x, tokens, model, steps, temperature=1., sample_logits=True,
+                     top_k=None, top_p=None, callback=None):
+    # x is conditioning
+    sample = x
+    tokens = tokens
+    cond_len = x.shape[1]
+    past = None
+    for n in range(steps):
+        if callback is not None:
+            callback(n)
+        logits, _, present = model.forward_with_past(x, past=past, past_length=(n+cond_len-1))
+        if past is None:
+            past = [present]
+        else:
+            past.append(present)
+        logits = logits[:, -1, :] / temperature
+        if top_k is not None:
+            logits = top_k_top_p_filtering(logits, top_k=top_k, top_p=top_p)
+
+        probs = F.softmax(logits, dim=-1)
+        if not sample_logits:
+            _, x = torch.topk(probs, k=1, dim=-1)
+        else:
+            x = torch.multinomial(probs, num_samples=1)
+        # append to the sequence and continue
+        sample = torch.cat((sample, x), dim=1)
+    del past
+    sample = sample[:, cond_len:]  # cut conditioning off
+    return sample
+
 
 
 #### clustering utils
