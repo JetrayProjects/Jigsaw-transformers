@@ -16,7 +16,6 @@ SEED_IMAGE_PATH = "sample.png"
 SEED_TOKEN_COUNT = 3 # You can modify this value easily
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-global encodedTokens
 
 # --------- HELPERS ---------
 def load_model(config_path, ckpt_path):
@@ -28,6 +27,7 @@ def load_model(config_path, ckpt_path):
     return model
 
 def get_seed_tokens(vqgan, image_path, seed_length):
+    global encodedTokens
     image = Image.open(image_path).convert("RGB").resize((256, 256))
     image_tensor = torch.tensor(np.array(image)).permute(2, 0, 1).float() / 127.5 - 1
     image_tensor = image_tensor.unsqueeze(0)  # Add batch dim
