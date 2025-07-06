@@ -16,7 +16,7 @@ SEED_IMAGE_PATH = "sample.png"
 SEED_TOKEN_COUNT = 3 # You can modify this value easily
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-tokens = []
+global encodedTokens
 
 # --------- HELPERS ---------
 def load_model(config_path, ckpt_path):
@@ -34,7 +34,7 @@ def get_seed_tokens(vqgan, image_path, seed_length):
     with torch.no_grad():
         _, _, quant_output = vqgan.encode(image_tensor)
         indices = quant_output[2]
-        tokens = indices
+        encodedTokens = indices
     return indices[:seed_length]  # Return first `seed_length` tokens
 
 def decode_tokens(vqgan, tokens):
@@ -65,13 +65,13 @@ def main():
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
     print("Generating sequence...")
     #sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.95)
-    sampled = sample_with_masking(seed_tokens.unsqueeze(0),tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.95)
+    sampled = sample_with_masking(seed_tokens.unsqueeze(0),encodedTokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.95)
 
     full_tokens = torch.cat([seed_tokens, sampled.squeeze(0)], dim=0)
     print(f"full_tokens shape: {full_tokens.shape}")
     print("Decoding generated image...")
     output_image = decode_tokens(vqgan, full_tokens)
-    output_image.save("/root/logs/output_seeded.png")
+    output_image.save("/root/logs/output_seeded_masked.png")
     print("Saved output to output_seeded.png")
 
 if __name__ == "__main__":
