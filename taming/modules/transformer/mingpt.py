@@ -377,7 +377,8 @@ def sample_with_masking(x, tokens, model, steps, temperature=1., sample_logits=T
                      top_k=None, top_p=None, callback=None):
     # x is conditioning
     sample = x
-    allowed_tokens = tokens.unique()
+    #allowed_tokens = tokens.unique()
+    allowed_tokens = tokens[0]
     cond_len = x.shape[1]
     past = None
     for n in range(steps):
@@ -390,8 +391,9 @@ def sample_with_masking(x, tokens, model, steps, temperature=1., sample_logits=T
             past.append(present)
         logits = logits[:, -1, :] / temperature
         #Masking unrequired tokens
-        mask = torch.full_like(logits, fill_value=-1e10)
+        mask = torch.full_like(logits, fill_value = -1e10)
         mask[:, allowed_tokens] = 0
+        print()
         logits = logits + mask
         #print(f"Step {n} - logits shape: {logits.shape}")
 
