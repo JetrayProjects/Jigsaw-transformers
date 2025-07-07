@@ -396,10 +396,10 @@ def sample_with_masking(x, tokens, model, steps, temperature=1., sample_logits=T
         #Masking unrequired tokens
         mask = torch.full_like(logits, fill_value = -1e10)
         mask[:, allowed_tokens] = 0
-        #print(f"Masked logits (non -1e10): {(mask == 0).sum(dim=1)}")
+        print(f"Masked logits (non -1e10): {(mask == 0).sum(dim=1)}")
         logits = logits + mask
-        print(f"Step {n} - logits shape: {logits.shape}")
-        print(logits)
+        #print(f"Step {n} - logits shape: {logits.shape}")
+       # print(f"These are the logits: {logits})
 
         if top_k is not None:
             logits = top_k_top_p_filtering(logits, top_k=top_k, top_p=top_p)
