@@ -65,7 +65,7 @@ def main():
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
     print("Generating sequence...")
     #sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.95)
-    sampled = sample_with_masking(seed_tokens.unsqueeze(0),encodedTokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=50, top_p=0.95)
+    sampled = sample_with_masking(seed_tokens.unsqueeze(0),encodedTokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.99)
 
     full_tokens = torch.cat([seed_tokens, sampled.squeeze(0)], dim=0)
     print(f"full_tokens shape: {full_tokens.shape}")
