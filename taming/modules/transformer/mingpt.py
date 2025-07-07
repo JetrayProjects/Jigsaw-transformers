@@ -379,7 +379,8 @@ def sample_with_masking(x, tokens, model, steps, temperature=1., sample_logits=T
     sample = x
     #allowed_tokens = tokens.unique()
     print(f"This is the shape of tokens: {tokens.shape}")
-    allowed_tokens = tokens[0].unique()
+    #allowed_tokens = tokens[0].unique()
+    allowed_tokens = tokens[0][0]
     print(allowed_tokens)
     cond_len = x.shape[1]
     past = None
