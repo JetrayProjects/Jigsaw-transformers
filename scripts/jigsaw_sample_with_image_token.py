@@ -72,13 +72,13 @@ def main():
     print("Encoding seed image...")
     
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
-    print(f"The seed tokens size is {seed_tokens.size}")
+    print(f"The seed tokens size is {seed_tokens.shape}")
     image_tokens = get_condition_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
-    print(f"The image token size is: {image_tokens.size}")
+    print(f"The image token size is: {image_tokens.shape}")
 
     #Prepending image tokens to seed tokens
     combined_tokens = torch.cat([image_tokens, seed_tokens], dim=0)
-    print(f"Combined tokens size {combined_tokens.size}")
+    print(f"Combined tokens size {combined_tokens.shape}")
 
     print("Generating sequence...")
     #sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.95)
