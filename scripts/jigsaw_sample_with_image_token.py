@@ -14,6 +14,7 @@ CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/configs/2021-04-03
 CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
 SEED_TOKEN_COUNT = 128# You can modify this value easily
+CONDITION_TOKEN_COUNT = 64
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -44,7 +45,7 @@ def get_condition_tokens(vqgan, image_path, seed_length):
     with torch.no_grad():
         _, _, quant_output = vqgan.encode(image_tensor)
         indices = quant_output[2]
-    return indices  # Return entire image token
+    return indices[:seed_length]  # Return entire image token
 
 def decode_tokens(vqgan, tokens):
     print(f"tokens shape before reshape: {tokens.shape}")  # Debug
@@ -73,7 +74,7 @@ def main():
     
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
     print(f"The seed tokens size is {seed_tokens.shape}")
-    image_tokens = get_condition_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
+    image_tokens = get_condition_tokens(vqgan, SEED_IMAGE_PATH, CONDITION_TOKEN_COUNT)
     print(f"The image token size is: {image_tokens.shape}")
 
     #Prepending image tokens to seed tokens
