@@ -13,7 +13,7 @@ import numpy as np
 CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/configs/2021-04-03T19-39-50-project.yaml"
 CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
-CONDITIONAL_IMAGE_PATH = ""
+CONDITIONAL_IMAGE_PATH = "sample2.png"
 SEED_TOKEN_COUNT = 128# You can modify this value easily
 CONDITION_TOKEN_COUNT = 20
 MAX_LENGTH = 256
@@ -75,7 +75,7 @@ def main():
     
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
     print(f"The seed tokens size is {seed_tokens.shape}")
-    image_tokens = get_condition_tokens(vqgan, SEED_IMAGE_PATH, CONDITION_TOKEN_COUNT)
+    image_tokens = get_condition_tokens(vqgan, CONDITIONAL_IMAGE_PATH, CONDITION_TOKEN_COUNT)
     print(f"The image token size is: {image_tokens.shape}")
 
     #Prepending image tokens to seed tokens
