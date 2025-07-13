@@ -83,7 +83,7 @@ def main():
 
     print("Generating sequence...")
     #sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.95)
-    sampled = sample_with_masking(combined_tokens.unsqueeze(0),encodedTokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k = 1, top_p = 1.0)
+    sampled = sample_with_masking(combined_tokens.unsqueeze(0),encodedTokens.unsqueeze(0),transformer, steps=256 - combined_tokens.size(0), temperature=1, top_k = 1, top_p = 1.0)
 
     full_tokens = torch.cat([seed_tokens, sampled.squeeze(0)], dim=0)
     print(f"full_tokens shape: {full_tokens.shape}")
