@@ -15,7 +15,7 @@ CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/la
 SEED_IMAGE_PATH = "sample.png"
 CONDITIONAL_IMAGE_PATH = ""
 SEED_TOKEN_COUNT = 128# You can modify this value easily
-CONDITION_TOKEN_COUNT = 12
+CONDITION_TOKEN_COUNT = 20
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
