@@ -13,7 +13,7 @@ import numpy as np
 CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/configs/2021-04-03T19-39-50-project.yaml"
 CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
-CONDITIONAL_IMAGE_PATH = "sample2.png"
+CONDITIONAL_IMAGE_PATH = "sample.png"
 SEED_TOKEN_COUNT = 128# You can modify this value easily
 CONDITION_TOKEN_COUNT = 30
 MAX_LENGTH = 256
