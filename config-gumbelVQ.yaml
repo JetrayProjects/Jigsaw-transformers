@@ -17,6 +17,14 @@ model:
       params:
         embed_dim: 256
         n_embed: 16384
+        temperature_scheduler_config:
+          target: taming.lr_scheduler.LambdaWarmUpCosineScheduler
+          params:
+            warm_up_steps: 0
+            max_decay_steps: 1000001
+            lr_start: 0.9
+            lr_max: 0.9
+            lr_min: 1.0e-06
         ddconfig:
           double_z: false
           z_channels: 256
