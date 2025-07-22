@@ -14,8 +14,8 @@ CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/configs/2021-04-03
 CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
 CONDITIONAL_IMAGE_PATH = "sample2.png"
-SEED_TOKEN_COUNT = 70# You can modify this value easily
-CONDITION_TOKEN_COUNT = 70
+SEED_TOKEN_COUNT = 16# You can modify this value easily
+CONDITION_TOKEN_COUNT = 16
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -85,7 +85,7 @@ def main():
 
     print("Generating sequence...")
     #sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=1, top_k=100, top_p=0.95)
-    sampled = sample_with_masking(combined_tokens.unsqueeze(0),encodedTokens.unsqueeze(0),transformer, steps=256 - combined_tokens.size(0), temperature=1, top_k = 1, top_p = 1.0)
+    sampled = sample_with_masking(combined_tokens.unsqueeze(0),encodedTokens.unsqueeze(0),transformer, steps=256 - combined_tokens.size(0), temperature=1, top_k = 100, top_p = 1.0)
 
     full_tokens = torch.cat([combined_tokens, sampled.squeeze(0)], dim=0)
     print(f"full_tokens shape: {full_tokens.shape}")
