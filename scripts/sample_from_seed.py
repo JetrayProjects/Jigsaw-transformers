@@ -13,7 +13,7 @@ import numpy as np
 CONFIG_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/configs/2021-04-03T19-39-50-project.yaml"
 CHECKPOINT_PATH = "/root/logs/2021-04-03T19-39-50_cin_transformer/checkpoints/last.ckpt"
 SEED_IMAGE_PATH = "sample.png"
-SEED_TOKEN_COUNT = 128 # You can modify this value easily
+SEED_TOKEN_COUNT = 32 # You can modify this value easily
 MAX_LENGTH = 256
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -62,7 +62,7 @@ def main():
     
     seed_tokens = get_seed_tokens(vqgan, SEED_IMAGE_PATH, SEED_TOKEN_COUNT)
     print("Generating sequence...")
-    sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=0.5, top_k=100, top_p=0.95)
+    sampled = sample_with_past(seed_tokens.unsqueeze(0),transformer, steps=256 - SEED_TOKEN_COUNT, temperature=0.3, top_k=100, top_p=0.95)
 
     full_tokens = torch.cat([seed_tokens, sampled.squeeze(0)], dim=0)
     print(f"full_tokens shape: {full_tokens.shape}")
